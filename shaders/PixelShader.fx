@@ -256,9 +256,34 @@ PIXEL(ArmorColoredAndSilverTrimGradient)
 }
 
 PIXEL(ArmorPolarized)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float4 c0 = { 0.333333343, 0.600000024, 0.166666672, 0.5 };
+    float4 c1 = { 1, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // add r0.x, r0.y, r0.x
+    r0.x = r0.x + r0.y;
+    // add r0.x, r0.z, r0.x
+    r0.x = r0.x + r0.z;
+    // mad r0.y, r0.x, -c0.x, c0.y
+    r0.y = mad(r0.x, -c0.x, c0.y);
+    // mul r0.z, r0.x, c0.z
+    r0.z = r0.x * c0.z;
+    // mad r0.x, r0.x, c0.z, c0.w
+    r0.x = mad(r0.x, c0.z, c0.w);
+    // cmp r1.xyz, r0.y, r0.z, r0.x
+    r1.xyz = r0.y < 0 ? r0.x : r0.z;
+    // mov r1.w, c1.x
+    r1.w = c1.x;
+    // mul r0, r0.w, r1
+    r0 = r0.w * r1;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+
+    return r0;
 }
 
 PIXEL(ArmorGel)
