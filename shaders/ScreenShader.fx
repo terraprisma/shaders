@@ -29,9 +29,20 @@ PIXEL(Default)
 }
 
 PIXEL(FilterTest)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float4 c0 = { -0.5, 0.200000003, 0.5, 0 };
+
+    float4 r0;
+
+    // add r0.xy, t0, c0.x
+    r0.xy = t0 + c0.x;
+    // mad r0.xy, r0, c0.y, c0.z
+    r0.xy = mad(r0, c0.y, c0.z);
+    // texld r0, r0, s0
+    r0 = tex2D(uImage0, r0);
+
+    return r0;
 }
 
 PIXEL(OverlayGlow)
