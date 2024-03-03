@@ -10,3 +10,7 @@
         PixelShader = compile ps_2_0 PixelShader_##name();   \
         VertexShader = compile vs_2_0 VertexShader_##name(); \
     }
+
+#define PIXEL(name) float4 PixelShader_##name
+
+#define PIXEL_SHADER_TODO return float4(0, 0, 0, 0)
