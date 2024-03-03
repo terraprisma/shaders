@@ -308,15 +308,28 @@ PIXEL(WaterDistortionObject)
 PIXEL(HallowBoss)
 (float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    float4 r0 = tex2D(uImage0, t0);
-    r0.x += uTime;
-    r0.y = abs(r0.x);
-    r0.y = frac(r0.y);
-    r0.x = r0.x < 0 ? -r0.y : r0.y;
-    r0.y = 0.5;
+    float c0 = uTime;
+    float4 c1 = { 0.5, 0, 0, 0 };
 
-    float4 r1 = tex2D(uImage1, r0.xy);
-    r0 = r1 * v0 * r0.w;
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // add r0.x, r0.x, c0.x
+    r0.x = r0.x + c0.x;
+    // abs r0.y, r0.x
+    r0.y = abs(r0.x);
+    // frc r0.y, r0.y
+    r0.y = frac(r0.y);
+    // cmp r0.x, r0.x, r0.y, -r0.y
+    r0.x = r0.x < 0 ? -r0.y : r0.y;
+    // mov r0.y, c1.x
+    r0.y = 0.5;
+    // texld r1, r0, s1
+    r1 = tex2D(uImage1, r0.xy);
+    // mul r1, r1, v0
+    r1 = r1 * v0;
+    // mul r0, r0.w, r1
+    r0 = r1 * r0.w;
 
     return r0;
 }
