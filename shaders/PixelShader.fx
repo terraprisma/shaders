@@ -3,6 +3,9 @@
 sampler uImage0 : register(s0);
 sampler uImage1 : register(s1);
 float4 uShaderSpecificData;
+float uTime;
+float3 uColor;
+float uOpacity;
 
 PIXEL(Default)
 (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
@@ -47,9 +50,28 @@ PIXEL(ArmorSilverTrim)
 }
 
 PIXEL(ArmorBrightnessColored)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float3 c0 = uColor;
+    float4 c1 = { 0.333333343, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // add r1.w, r0.y, r0.x
+    r1.w = r0.x + r0.y;
+    // add r1.x, r0.z, r1.w
+    r1.x = r0.z + r1.w;
+    // mul r1.x, r1.x, c1.x
+    r1.x = r1.x * c1.x;
+    // mul r1.xyz, r1.x, c0
+    r1.xyz = r1.x * c0;
+    // mul r0.xyz, r0.w, r1
+    r0.xyz = r0.w * r1;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+
+    return r0;
 }
 
 PIXEL(ArmorColoredGradient)
@@ -89,9 +111,23 @@ PIXEL(ArmorLivingRainbow)
 }
 
 PIXEL(ArmorInvert)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float4 c0 = { 1, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // mov r1.w, c0.x
+    r1.w = c0.x;
+    // add r1.xyz, -r0, c0.x
+    r1.xyz = -r0 + c0.x;
+    // mul r0, r0.w, r1
+    r0 = r0.w * r1;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+
+    return r0;
 }
 
 PIXEL(ArmorLivingOcean)
@@ -144,9 +180,21 @@ PIXEL(ArmorReflectiveColor)
 }
 
 PIXEL(ArmorBasicColor)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float3 c0 = uColor;
+    float c1 = uOpacity;
+
+    float4 r0 = tex2D(uImage0, t0);
+
+    // mul r0.xyz, r0, c0
+    r0.xyz = r0 * c0;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+    // mul r0, r0, c1.x
+    r0 = r0 * c1.x;
+
+    return r0;
 }
 
 PIXEL(ArmorHades)
@@ -168,9 +216,55 @@ PIXEL(ArmorAcid)
 }
 
 PIXEL(ArmorMushroom)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float3 c0 = uColor;
+    float4 c1 = { 0.333333343, -0.300000012, 1.66666663, 1 };
+    float4 c2 = { -2, 3, 0.25, 0 };
+    float4 c3 = { 0.5, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+    float4 r2;
+
+    // add r1.w, r0.y, r0.x
+    r1.w = r0.x + r0.y;
+    // add r1.x, r0.z, r1.w
+    r1.x = r0.z + r1.w;
+    // mad r1.x, r1.x, c1.x, c1.y
+    r1.x = mad(r1.x, c1.x, c1.y);
+    // mul_sat r1.y, r1.x, c1.z
+    r1.y = saturate(r1.x * c1.z);
+    // mad r1.z, r1.y, c2.x, c2.y
+    r1.z = mad(r1.y, c2.x, c2.y);
+    // mul r1.y, r1.y, r1.y
+    r1.y = r1.y * r1.y;
+    // mad r1.y, r1.z, -r1.y, c1.w
+    r1.y = mad(r1.z, -r1.y, c1.w);
+    // mul r0.xyz, r0, c2.z
+    r0.xyz = r0 * c2.z;
+    // mad r2.xyz, c0, r1.y, -r0
+    r2.xyz = mad(c0, r1.y, -r0);
+    // mad r0.xyz, r1.y, r2, r0
+    r0.xyz = mad(r1.y, r2, r0);
+    // cmp r1.xyz, r1.x, r0, c2.w
+    r1.xyz = r1.x < 0 ? c2.w : r0;
+    // mov r1.w, c1.w
+    r1.w = c1.w;
+    // mul r0, r0.w, r1
+    r0 = r0.w * r1;
+    // min r1, r0, c1.w
+    r1 = min(r0, c1.w);
+    // max r0.xyz, v0, v0.w
+    r0.xyz = max(v0, v0.w);
+    // lrp r2.xyz, c3.x, r0, v0
+    r2.xyz = v0 + c3.x * (r0 - v0);
+    // mov r2.w, v0.w
+    r2.w = v0.w;
+    // mul r0, r1, r2
+    r0 = r1 * r2;
+
+    return r0;
 }
 
 PIXEL(ArmorPhase)
@@ -258,9 +352,34 @@ PIXEL(ArmorColoredAndSilverTrimGradient)
 }
 
 PIXEL(ArmorPolarized)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float4 c0 = { 0.333333343, 0.600000024, 0.166666672, 0.5 };
+    float4 c1 = { 1, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // add r0.x, r0.y, r0.x
+    r0.x = r0.x + r0.y;
+    // add r0.x, r0.z, r0.x
+    r0.x = r0.x + r0.z;
+    // mad r0.y, r0.x, -c0.x, c0.y
+    r0.y = mad(r0.x, -c0.x, c0.y);
+    // mul r0.z, r0.x, c0.z
+    r0.z = r0.x * c0.z;
+    // mad r0.x, r0.x, c0.z, c0.w
+    r0.x = mad(r0.x, c0.z, c0.w);
+    // cmp r1.xyz, r0.y, r0.z, r0.x
+    r1.xyz = r0.y < 0 ? r0.x : r0.z;
+    // mov r1.w, c1.x
+    r1.w = c1.x;
+    // mul r0, r0.w, r1
+    r0 = r0.w * r1;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+
+    return r0;
 }
 
 PIXEL(ArmorGel)
@@ -306,9 +425,32 @@ PIXEL(WaterDistortionObject)
 }
 
 PIXEL(HallowBoss)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float c0 = uTime;
+    float4 c1 = { 0.5, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // add r0.x, r0.x, c0.x
+    r0.x = r0.x + c0.x;
+    // abs r0.y, r0.x
+    r0.y = abs(r0.x);
+    // frc r0.y, r0.y
+    r0.y = frac(r0.y);
+    // cmp r0.x, r0.x, r0.y, -r0.y
+    r0.x = r0.x < 0 ? -r0.y : r0.y;
+    // mov r0.y, c1.x
+    r0.y = 0.5;
+    // texld r1, r0, s1
+    r1 = tex2D(uImage1, r0.xy);
+    // mul r1, r1, v0
+    r1 = r1 * v0;
+    // mul r0, r0.w, r1
+    r0 = r1 * r0.w;
+
+    return r0;
 }
 
 PIXEL(TitaniumStorm)
