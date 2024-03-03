@@ -1,9 +1,11 @@
 #include "shared.fxh"
 
+sampler uImage0 : register(s0);
+
 PIXEL(Default)
-() : COLOR0
+(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    return tex2D(uImage0, coords) * sampleColor;
 }
 
 PIXEL(ColorOnly)

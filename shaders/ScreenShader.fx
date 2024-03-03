@@ -23,11 +23,9 @@ float4 uSourceRect; // Doesn't seem to be used, but included for parity.
 float2 uZoom;
 
 PIXEL(Default)
-(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
+(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 {
-    float4 r0 = tex2D(uImage0, t0.xy);
-    r0 = r0 * v0;
-    return r0;
+    return tex2D(uImage0, coords) * sampleColor;
 }
 
 PIXEL(FilterTest)
