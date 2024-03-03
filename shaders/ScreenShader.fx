@@ -175,9 +175,28 @@ PIXEL(FilterWaterDistortion)
 }
 
 PIXEL(WaterDebugDraw)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float4 c0 = { -0.5, 0.400000006, 1, 0 };
+    float4 c1 = { 2, -2, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // add r0.x, r0.x, c0.x
+    r0.x = r0.x + c0.x;
+    // mad r0.y, r0.z, -c0.y, c0.z
+    r0.y = mad(r0.z, -c0.y, c0.z);
+    // mul r0.x, r0.x, r0.y
+    r0.x = r0.y * r0.x;
+    // mul r0.x, r0.x, v0.w
+    r0.x = r0.x * v0.w;
+    // mul r0.xyz, r0.x, c1
+    r0.xyz = r0.x * c1;
+    // abs r0.w, r0.x
+    r0.w = abs(r0.x);
+
+    return r0;
 }
 
 PIXEL(FilterCrystalDestructionColor)
