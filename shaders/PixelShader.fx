@@ -1,6 +1,8 @@
 #include "shared.fxh"
 
 sampler uImage0 : register(s0);
+sampler uImage1 : register(s1);
+float4 uShaderSpecificData;
 
 PIXEL(Default)
 (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
@@ -340,9 +342,24 @@ PIXEL(FinalFractalVertex)
 }
 
 PIXEL(MaskedFade)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float4 c0 = uShaderSpecificData;
+
+    float4 r0;
+    float4 r1;
+    r0.x = t0.x;
+    r0.y = t0.y * c0.x + c0.y;
+    r1.x = t0.x + c0.z;
+    r1.y = t0.y + c0.w;
+
+    r0 = tex2D(uImage1, r0.xy);
+    r1 = tex2D(uImage0, r1.xy);
+
+    r1 = r1 * v0;
+    r0 = r0.w * r1;
+
+    return r0;
 }
 
 PIXEL(RainbowTownSlime)
