@@ -1,6 +1,8 @@
 #include "shared.fxh"
 
 sampler uImage0 : register(s0);
+float3 uColor;
+float uOpacity;
 
 PIXEL(Default)
 (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
@@ -142,9 +144,21 @@ PIXEL(ArmorReflectiveColor)
 }
 
 PIXEL(ArmorBasicColor)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float3 c0 = uColor;
+    float c1 = uOpacity;
+
+    float4 r0 = tex2D(uImage0, t0);
+
+    // mul r0.xyz, r0, c0
+    r0.xyz = r0 * c0;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+    // mul r0, r0, c1.x
+    r0 = r0 * c1.x;
+
+    return r0;
 }
 
 PIXEL(ArmorHades)
