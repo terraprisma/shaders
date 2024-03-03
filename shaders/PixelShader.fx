@@ -87,9 +87,23 @@ PIXEL(ArmorLivingRainbow)
 }
 
 PIXEL(ArmorInvert)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float4 c0 = { 1, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // mov r1.w, c0.x
+    r1.w = c0.x;
+    // add r1.xyz, -r0, c0.x
+    r1.xyz = -r0 + c0.x;
+    // mul r0, r0.w, r1
+    r0 = r0.w * r1;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+
+    return r0;
 }
 
 PIXEL(ArmorLivingOcean)
