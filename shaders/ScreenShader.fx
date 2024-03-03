@@ -47,9 +47,24 @@ PIXEL(FilterColor)
 }
 
 PIXEL(FilterInvert)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float c0 = uOpacity;
+    float4 c1 = { -1, -1, -1, 1 };
+    float4 c2 = { 1, 1, 1, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+    float4 r2;
+
+    // mov r1, c1
+    r1 = c1;
+    // mad r1, r0, r1, c2
+    r1 = mad(r0, r1, c2);
+    // lrp r2, c0.x, r1, r0
+    r2 = lerp(r0, r1, c0.x);
+    
+    return r2;
 }
 
 PIXEL(FilterMoonLord)
