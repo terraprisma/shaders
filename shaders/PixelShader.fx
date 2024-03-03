@@ -9,9 +9,9 @@ PIXEL(Default)
 }
 
 PIXEL(ColorOnly)
-() : COLOR0
+(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    return sampleColor * tex2D(uImage0, coords).a;
 }
 
 PIXEL(ArmorMartian)
