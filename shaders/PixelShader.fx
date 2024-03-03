@@ -1,6 +1,7 @@
 #include "shared.fxh"
 
 sampler uImage0 : register(s0);
+float3 uColor;
 
 PIXEL(Default)
 (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
@@ -45,9 +46,28 @@ PIXEL(ArmorSilverTrim)
 }
 
 PIXEL(ArmorBrightnessColored)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float3 c0 = uColor;
+    float4 c1 = { 0.333333343, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // add r1.w, r0.y, r0.x
+    r1.w = r0.x + r0.y;
+    // add r1.x, r0.z, r1.w
+    r1.x = r0.z + r1.w;
+    // mul r1.x, r1.x, c1.x
+    r1.x = r1.x * c1.x;
+    // mul r1.xyz, r1.x, c0
+    r1.xyz = r1.x * c0;
+    // mul r0.xyz, r0.w, r1
+    r0.xyz = r0.w * r1;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+
+    return r0;
 }
 
 PIXEL(ArmorColoredGradient)
