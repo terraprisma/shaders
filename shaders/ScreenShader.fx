@@ -74,9 +74,32 @@ PIXEL(FilterMoonLord)
 }
 
 PIXEL(FilterGraveyard)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float c0 = uOpacity;
+    float c1 = uIntensity;
+    float c2 = uProgress;
+    float4 c3 = { 0.333333343, 0, 0, 0 };
+
+    float4 r0 = tex2D(uImage0, t0);
+    float4 r1;
+
+    // add r1.w, r0.y, r0.x
+    r1.w = r0.x + r0.y;
+    // add r1.x, r0.z, r1.w
+    r1.x = r0.z + r1.w;
+    // mul r1.x, r1.x, c1.x
+    r1.x = r1.x * c1.x;
+    // mad r1.xyz, r1.x, c3.x, -r0
+    r1.xyz = mad(r1.x, c3.x, -r0);
+    // mad r1.xyz, c2.x, r1, r0
+    r1.xyz = mad(c2.x, r1, r0);
+    // mad r1.xyz, r1, r0.w, -r0
+    r1.xyz = mad(r1, r0.w, -r0);
+    // mad r0.xyz, c0.x, r1, r0
+    r0.xyz = mad(c0.x, r1, r0);
+
+    return r0;
 }
 
 PIXEL(FilterSepia)
