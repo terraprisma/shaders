@@ -14,3 +14,5 @@
 #define PIXEL(name) float4 PixelShader_##name
 
 #define PIXEL_SHADER_TODO return float4(0, 0, 0, 0)
+
+#define DOES_NOT_MATCH(name, type) "WARNING: recompiled " #name " (pass: " #type ") does not match source"

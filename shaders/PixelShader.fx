@@ -53,7 +53,7 @@ PIXEL(ArmorBrightnessColored)
 (float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
     float3 c0 = uColor;
-    float4 c1 = { 0.333333343, 0, 0, 0 };
+    float4 c1 = {0.333333343, 0, 0, 0};
 
     float4 r0 = tex2D(uImage0, t0);
     float4 r1;
@@ -113,7 +113,7 @@ PIXEL(ArmorLivingRainbow)
 PIXEL(ArmorInvert)
 (float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    float4 c0 = { 1, 0, 0, 0 };
+    float4 c0 = {1, 0, 0, 0};
 
     float4 r0 = tex2D(uImage0, t0);
     float4 r1;
@@ -219,9 +219,9 @@ PIXEL(ArmorMushroom)
 (float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
     float3 c0 = uColor;
-    float4 c1 = { 0.333333343, -0.300000012, 1.66666663, 1 };
-    float4 c2 = { -2, 3, 0.25, 0 };
-    float4 c3 = { 0.5, 0, 0, 0 };
+    float4 c1 = {0.333333343, -0.300000012, 1.66666663, 1};
+    float4 c2 = {-2, 3, 0.25, 0};
+    float4 c3 = {0.5, 0, 0, 0};
 
     float4 r0 = tex2D(uImage0, t0);
     float4 r1;
@@ -354,8 +354,8 @@ PIXEL(ArmorColoredAndSilverTrimGradient)
 PIXEL(ArmorPolarized)
 (float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    float4 c0 = { 0.333333343, 0.600000024, 0.166666672, 0.5 };
-    float4 c1 = { 1, 0, 0, 0 };
+    float4 c0 = {0.333333343, 0.600000024, 0.166666672, 0.5};
+    float4 c1 = {1, 0, 0, 0};
 
     float4 r0 = tex2D(uImage0, t0);
     float4 r1;
@@ -428,7 +428,7 @@ PIXEL(HallowBoss)
 (float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
     float c0 = uTime;
-    float4 c1 = { 0.5, 0, 0, 0 };
+    float4 c1 = {0.5, 0, 0, 0};
 
     float4 r0 = tex2D(uImage0, t0);
     float4 r1;
@@ -483,6 +483,7 @@ PIXEL(FinalFractalVertex)
     PIXEL_SHADER_TODO;
 }
 
+#pragma message(DOES_NOT_MATCH(MaskedFade, Pixel));
 PIXEL(MaskedFade)
 (float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
@@ -490,7 +491,7 @@ PIXEL(MaskedFade)
 
     float4 r0;
     float4 r1;
-    
+
     // mov r0.x, t0.x
     r0.x = t0.x;
     // mad r0.y, t0.y, c0.x, c0.y
