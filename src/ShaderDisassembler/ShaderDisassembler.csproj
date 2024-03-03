@@ -9,13 +9,4 @@
         <PlatformTarget>x86</PlatformTarget>
     </PropertyGroup>
 
-    <ItemGroup>
-        <None Update="fxc.exe">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="*.cso">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
 </Project>

@@ -1,0 +1,3 @@
+technique Technique1
+{
+}

@@ -305,20 +305,22 @@ public static unsafe partial class Compiler {
         }
     }
 
-    public static string Disassemble(string path) {
+    public static string Disassemble(string path, bool skipHeader) {
         ID3DXEffect* effect = null;
         ID3DXBuffer* error = null;
         ID3DXBuffer* disassembler = null;
         // D3DXCreateEffectFromFile(g_D3DDevice, path, nint.Zero, nint.Zero, 0, nint.Zero, &effect, &error);
         var bytes = File.ReadAllBytes(path);
         fixed (byte* pBytes = bytes) {
-            var skip = BitConverter.ToUInt32(bytes, 4);
+            var skip = skipHeader ? BitConverter.ToUInt32(bytes, 4) : 0;
             D3DXCreateEffect(g_D3DDevice, pBytes + skip, (nint)(bytes.Length - skip), nint.Zero, nint.Zero, 0, nint.Zero, &effect, &error);
         }
+
         if (error != null) {
             var message = Marshal.PtrToStringAnsi(ID3DXBuffer_GetBufferPointer(error));
             throw new Exception(message);
         }
+
         D3DXDisassembleEffect(effect, false, &disassembler);
         var source = Marshal.PtrToStringAnsi(ID3DXBuffer_GetBufferPointer(disassembler));
         return source!;
