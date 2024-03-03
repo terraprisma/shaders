@@ -1,3 +1,5 @@
-technique Technique1
+#include "shared.fxh"
+
+TECHNIQUE(Technique1)
 {
 }

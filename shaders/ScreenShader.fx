@@ -1,3 +1,5 @@
+#include "shared.fxh"
+
 sampler uImage0 : register(s0); // The contents of the screen.
 sampler uImage1 : register(s1); // Up to three extra textures you can use for various purposes (for instance as an overlay).
 sampler uImage2 : register(s2);
@@ -20,15 +22,14 @@ float uSaturation;
 float4 uSourceRect; // Doesn't seem to be used, but included for parity.
 float2 uZoom;
 
-float4 PixelShaderDefault(float2 TexCoord : TEXCOORD0) : COLOR0
+float4 PixelShader_Default(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    return tex2D(uImage0, TexCoord);
+    float4 r0 = tex2D(uImage0, t0.xy);
+    r0 = r0 * v0;
+    return r0;
 }
 
-technique Technique1
+TECHNIQUE(Technique1)
 {
-    pass Default
-    {
-        PixelShader = compile ps_3_0 PixelShaderDefault();
-    }
+    PASS_PIXEL(Default)
 }

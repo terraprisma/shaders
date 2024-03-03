@@ -23,12 +23,15 @@ technique Technique1
             //   uImage0      s0       1
             //
             
-                ps_3_0
-                dcl_texcoord v0.xy
+                ps_2_0
+                dcl v0
+                dcl t0.xy
                 dcl_2d s0
-                texld oC0, v0, s0
+                texld r0, t0, s0
+                mul r0, r0, v0
+                mov oC0, r0
             
-            // approximately 1 instruction slot used (1 texture, 0 arithmetic)
+            // approximately 3 instruction slots used (1 texture, 2 arithmetic)
             };
     }
 }
