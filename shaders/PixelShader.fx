@@ -2,6 +2,7 @@
 
 sampler uImage0 : register(s0);
 sampler uImage1 : register(s1);
+float4 uShaderSpecificData;
 float uTime;
 float3 uColor;
 float uOpacity;
@@ -483,9 +484,31 @@ PIXEL(FinalFractalVertex)
 }
 
 PIXEL(MaskedFade)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float4 c0 = uShaderSpecificData;
+
+    float4 r0;
+    float4 r1;
+    
+    // mov r0.x, t0.x
+    r0.x = t0.x;
+    // mad r0.y, t0.y, c0.x, c0.y
+    r0.y = mad(t0.y, c0.x, c0.y);
+    // add r1.x, t0.x, c0.z
+    r1.x = t0.x + c0.z;
+    // add r1.y, t0.y, c0.w
+    r1.y = t0.y + c0.w;
+    // texld r0, r0, s1
+    r0 = tex2D(uImage1, r0.xy);
+    // texld r1, r1, s0
+    r1 = tex2D(uImage0, r1.xy);
+    // mul r1, r1, v0
+    r1 = r1 * v0;
+    // mul r0, r0.w, r1
+    r0 = r0.w * r1;
+
+    return r0;
 }
 
 PIXEL(RainbowTownSlime)
