@@ -2,10 +2,23 @@
 
 sampler uImage0 : register(s0);
 sampler uImage1 : register(s1);
-float4 uShaderSpecificData;
-float uTime;
 float3 uColor;
+float3 uSecondaryColor;
 float uOpacity;
+float2 uTargetPosition;
+float uSaturation;
+float uRotation;
+float uTime;
+float4 uSourceRect;
+float2 uWorldPosition;
+float uDirection;
+float3 uLightSource;
+float2 uImageSize0;
+float2 uImageSize1;
+float4 uLegacyArmorSourceRect;
+float2 uLegacyArmorSheetSize;
+
+float4 uShaderSpecificData;
 
 PIXEL(Default)
 (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
@@ -25,10 +38,88 @@ PIXEL(ArmorMartian)
     PIXEL_SHADER_TODO;
 }
 
+#pragma message(DOES_NOT_MATCH(ArmorColored, Pixel));
 PIXEL(ArmorColored)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float3 c0 = uColor;
+    float c1 = uSaturation;
+    float4 c2;
+    float3 c3 = uColor;
+    float c4 = uSaturation;
+    float4 c5 = {0.5, 1.5, 1, 0};
+
+    float4 r0;
+    float4 r1;
+    float4 r2;
+    
+    // preshader (start)
+    // neg r0.xyz, c0.xyz
+    r0.xyz = -c0.xyz;
+    // add c0.xyz, (1, 1, 1), r0.xyz
+    c0.xyz = 1 + r0.xyz;
+    // neg r0.x, c1.x
+    r0.x = -c1.x;
+    // add r1.x, r0.x, (1)
+    r1.x = r0.x + 1;
+    // rcp r0.x, c1.x
+    r0.x = 1 / c1.x;
+    // cmp r2.x, r1.x, (1), r0.x
+    r2.x = r1.x >= 0 ? r0.x : 1;
+    // neg r0.x, r2.x
+    r0.x = -r2.x;
+    // mov c1.x, r2.x
+    c1.x = r2.x;
+    // add c2.x, r0.x, (1)
+    c2.x = r0.x + 1;
+    // preshader (end)
+
+    // texld r0, t0, s0
+    r0 = tex2D(uImage0, t0);
+    // max r1.w, r0.y, r0.z
+    r1.w = max(r0.y, r0.z);
+    // max r2.w, r0.x, r1.w
+    r2.w = max(r0.x, r1.w);
+    // min r1.x, r0.z, r0.y
+    r1.x = min(r0.y, r0.z);
+    // min r2.x, r1.x, r0.x
+    r2.x = min(r0.x, r1.x);
+    // add r0.x, r2.w, r2.x
+    r0.x = r2.x + r2.w;
+    // add r0.y, r2.w, -r2.x
+    r0.y = -r2.x + r2.w;
+    // mul r0.y, r0.y, c4.x
+    r0.y = r0.y * c4.x;
+    // mov r1.x, c1.x
+    r1.x = c1.x;
+    // mad r0.y, r0.y, r1.x, c2.x
+    r0.y = mad(r0.y, r1.x, c2.x);
+    // mad r0.z, r0.x, -c5.x, c5.y
+    r0.z = mad(r0.x, -c5.x, c5.y);
+    // mov r1.z, c5.z
+    r1.z = c5.z;
+    // mad r1.xyz, r0.z, -c0, r1.z
+    r1.xyz = mad(r0.z, -c0, r1.z);
+    // mad r1.w, r0.x, -c5.x, c5.x
+    r1.w = mad(r0.x, -c5.x, c5.x);
+    // mul r2.xyz, r0.x, c3
+    r2.xyz = r0.x * c3;
+    // cmp r1.xyz, r1.w, r2, r1
+    r1.xyz = r1.w < 0 ? r1.xyz : r2.xyz;
+    // mad r1.xyz, r0.x, -c5.x, r1
+    r1.xyz = mad(r0.x, -c5.x, r1.x);
+    // mul r1.w, r0.x, c5.x
+    r1.w = r0.x * c5.x;
+    // mad r1.xyz, r0.y, r1, r1.w
+    r1.xyz = mad(r0.y, r1.x, r1.w);
+    // mov r1.w, c5.z
+    r1.w = c5.z;
+    // mul r0, r0.w, r1
+    r0 = r0.w * r1;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+
+    return r0;
 }
 
 PIXEL(ArmorColoredAndBlack)
@@ -67,7 +158,7 @@ PIXEL(ArmorBrightnessColored)
     // mul r1.xyz, r1.x, c0
     r1.xyz = r1.x * c0;
     // mul r0.xyz, r0.w, r1
-    r0.xyz = r0.w * r1;
+    r0.xyz = r0.w * r1.xyz;
     // mul r0, r0, v0
     r0 = r0 * v0;
 
@@ -121,9 +212,9 @@ PIXEL(ArmorInvert)
     // mov r1.w, c0.x
     r1.w = c0.x;
     // add r1.xyz, -r0, c0.x
-    r1.xyz = -r0 + c0.x;
+    r1.xyz = -r0.xyz + c0.x;
     // mul r0, r0.w, r1
-    r0 = r0.w * r1;
+    r0 = r0.w * r1.xyz;
     // mul r0, r0, v0
     r0 = r0 * v0;
 
@@ -188,7 +279,7 @@ PIXEL(ArmorBasicColor)
     float4 r0 = tex2D(uImage0, t0);
 
     // mul r0.xyz, r0, c0
-    r0.xyz = r0 * c0;
+    r0.xyz = r0.xyz * c0;
     // mul r0, r0, v0
     r0 = r0 * v0;
     // mul r0, r0, c1.x
@@ -242,13 +333,13 @@ PIXEL(ArmorMushroom)
     // mad r1.y, r1.z, -r1.y, c1.w
     r1.y = mad(r1.z, -r1.y, c1.w);
     // mul r0.xyz, r0, c2.z
-    r0.xyz = r0 * c2.z;
+    r0.xyz = r0.xyz * c2.z;
     // mad r2.xyz, c0, r1.y, -r0
-    r2.xyz = mad(c0, r1.y, -r0);
+    r2.xyz = mad(c0.x, r1.y, -r0.x);
     // mad r0.xyz, r1.y, r2, r0
-    r0.xyz = mad(r1.y, r2, r0);
+    r0.xyz = mad(r1.y, r2.x, r0.x);
     // cmp r1.xyz, r1.x, r0, c2.w
-    r1.xyz = r1.x < 0 ? c2.w : r0;
+    r1.xyz = r1.x < 0 ? c2.w : r0.x;
     // mov r1.w, c1.w
     r1.w = c1.w;
     // mul r0, r0.w, r1
@@ -256,9 +347,9 @@ PIXEL(ArmorMushroom)
     // min r1, r0, c1.w
     r1 = min(r0, c1.w);
     // max r0.xyz, v0, v0.w
-    r0.xyz = max(v0, v0.w);
+    r0.xyz = max(v0.x, v0.w);
     // lrp r2.xyz, c3.x, r0, v0
-    r2.xyz = v0 + c3.x * (r0 - v0);
+    r2.xyz = v0 + c3.x * (r0.x - v0.x);
     // mov r2.w, v0.w
     r2.w = v0.w;
     // mul r0, r1, r2
