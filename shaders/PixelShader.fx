@@ -122,10 +122,92 @@ PIXEL(ArmorColored)
     return r0;
 }
 
+#pragma message(DOES_NOT_MATCH(ArmorColoredAndBlack, Pixel));
 PIXEL(ArmorColoredAndBlack)
-() : COLOR0
+(float4 v0 : COLOR0, float2 t0 : TEXCOORD0) : COLOR0
 {
-    PIXEL_SHADER_TODO;
+    float3 c0 = uColor;
+    float c1 = uSaturation;
+    float4 c2;
+    float3 c3 = uColor;
+    float c4 = uSaturation;
+    float4 c5 = {0.5, 1.5, 1, 0};
+    float4 c6 = {0.660000026, 0.330000013, 0, 0};
+
+    float4 r0;
+    float4 r1;
+    float4 r2;
+    float4 r3;
+
+    // preshader (start)
+    // neg r0.xyz, c0.xyz
+    r0.xyz = -c0.xyz;
+    // add c0.xyz, (1, 1, 1), r0.xyz
+    c0.xyz = 1 + r0.xyz;
+    // neg r0.x, c1.x
+    r0.x = -c1.x;
+    // add r1.x, r0.x, (1)
+    r1.x = r0.x + 1;
+    // rcp r0.x, c1.x
+    r0.x = 1 / c1.x;
+    // cmp r2.x, r1.x, (1), r0.x
+    r2.x = r1.x >= 0 ? 1 : r0.x;
+    // neg r0.x, r2.x
+    r0.x = -r2.x;
+    // mov c1.x, r2.x
+    c1.x = r2.x;
+    // add c2.x, r0.x, (1)
+    c2.x = r0.x + 1;
+    // preshader (end)
+
+    // texld r0, t0, s0
+    r0 = tex2D(uImage0, t0);
+    // max r1.w, r0.y, r0.z
+    r1.w = max(r0.y, r0.z);
+    // max r2.w, r0.x, r1.w
+    r2.w = max(r0.x, r1.w);
+    // min r1.x, r0.z, r0.y
+    r1.x = min(r0.y, r0.z);
+    // min r2.x, r1.x, r0.x
+    r2.x = min(r0.x, r1.x);
+    // add r1.x, r2.w, r2.x
+    r1.x = r2.x + r2.w;
+    // add r1.y, r2.w, -r2.x
+    r1.y = -r2.x + r2.w;
+    // mad r1.z, r1.x, -c5.x, c5.y
+    r1.z = mad(r1.x, -c5.x, c5.y);
+    // mov r1.w, c5.z
+    r1.w = c5.z;
+    // mad r2.xyz, r1.z, -c0, r1.w
+    r2.xyz = mad(r1.z, -c0, r1.w);
+    // mad r2.w, r1.x, -c5.x, c5.x
+    r2.w = mad(r1.x, -c5.x, c5.x);
+    // mul r3.xyz, r1.x, c3
+    r3.xyz = r1.x * c3;
+    // cmp r2.xyz, r2.w, r3, r2
+    r2.xyz = r2.w >= 0 ? r3 : r2;
+    // mad r2.xyz, r1.x, -c5.x, r2
+    r2.xyz = mad(r1.x, -c5.x, r2);
+    // mul r2.w, r1.x, c5.x
+    r2.w = mul(r1.x, c5.x);
+    // mul r1.x, r1.y, c4.x
+    r1.x = mul(r1.y, c4.x);
+    // mad r1.y, r1.y, c6.x, c6.y
+    r1.y = mad(r1.y, c6.x, c6.y);
+    // mov r3.x, c1.x
+    r3.x = c1.x;
+    // mad r1.x, r1.x, r3.x, c2.x
+    r1.x = mad(r1.x, r3.x, c2.x);
+    // mad r2.xyz, r1.x, r2, r2.w
+    r2.xyz = mad(r1.x, r2, r2.w);
+    // mul r2.xyz, r0.w, r2
+    r2.xyz = r0.w * r2;
+    // mul r0.xyz, r1.y, r2
+    r0.xyz = r1.y * r2;
+    // mul r0, r0, v0
+    r0 = r0 * v0;
+
+    return r0;
 }
 
 PIXEL(ArmorColoredAndSilverTrim)
@@ -212,9 +294,9 @@ PIXEL(ArmorInvert)
     // mov r1.w, c0.x
     r1.w = c0.x;
     // add r1.xyz, -r0, c0.x
-    r1.xyz = -r0.xyz + c0.x;
+    r1.xyz = -r0 + c0.x;
     // mul r0, r0.w, r1
-    r0 = r0.w * r1.xyz;
+    r0 = r0.w * r1;
     // mul r0, r0, v0
     r0 = r0 * v0;
 
