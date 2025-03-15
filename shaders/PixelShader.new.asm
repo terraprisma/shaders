@@ -134,8 +134,8 @@ technique Technique1
             //
             
                 preshader
-                neg r0.x, c0.x
-                add c2.x, r0.x, (1)
+                neg r0.xyz, c0.xyz
+                add c2.xyz, (1, 1, 1), r0.xyz
                 neg r0.x, c1.x
                 add r1.x, r0.x, (1)
                 rcp r0.x, c1.x
@@ -180,19 +180,20 @@ technique Technique1
                 mov r1.x, c0.x
                 mad r0.y, r0.y, r1.x, c1.x
                 mad r0.z, r0.x, c5.x, c5.y
-                mov r1.zw, c5.z
-                mad r0.z, r0.z, -c2.x, r1.z
-                mad r1.x, r0.x, c5.x, c5.w
-                mul r1.y, r0.x, c3.x
-                cmp r0.z, r1.x, r1.y, r0.z
-                mad r0.z, r0.x, c5.x, r0.z
-                mul r0.y, r0.z, r0.y
-                mad r1.xyz, r0.x, c5.w, r0.y
+                mov r1.z, c5.z
+                mad r1.xyz, r0.z, -c2, r1.z
+                mad r1.w, r0.x, c5.x, c5.w
+                mul r2.xyz, r0.x, c3
+                cmp r1.xyz, r1.w, r2, r1
+                mad r1.xyz, r0.x, c5.x, r1
+                mul r1.xyz, r0.y, r1
+                mad r1.xyz, r0.x, c5.w, r1
+                mov r1.w, c5.z
                 mul r0, r0.w, r1
                 mul r0, r0, v0
                 mov oC0, r0
             
-            // approximately 22 instruction slots used (1 texture, 21 arithmetic)
+            // approximately 23 instruction slots used (1 texture, 22 arithmetic)
             };
     }
     pass ArmorColoredAndBlack
@@ -708,30 +709,27 @@ technique Technique1
                 dcl t0.xy
                 dcl_2d s0
                 texld r0, t0, s0
-                add r0.y, r0.y, r0.x
-                add r0.y, r0.y, r0.z
-                mad r0.y, r0.y, c1.x, c1.y
-                mul_sat r0.z, r0.y, c1.z
-                mad r1.w, r0.z, c2.x, c2.y
-                mul r0.z, r0.z, r0.z
-                mad r0.z, r1.w, -r0.z, c1.w
-                mul r0.x, r0.x, c2.z
-                mad r1.x, c0.x, r0.z, -r0.x
-                mad r0.x, r0.z, r1.x, r0.x
-                cmp r1.xyz, r0.y, r0.x, c2.w
+                add r1.w, r0.y, r0.x
+                add r1.x, r0.z, r1.w
+                mad r1.x, r1.x, c1.x, c1.y
+                mul_sat r1.y, r1.x, c1.z
+                mad r1.z, r1.y, c2.x, c2.y
+                mul r1.y, r1.y, r1.y
+                mad r1.y, r1.z, -r1.y, c1.w
+                mul r0.xyz, r0, c2.z
+                mad r2.xyz, c0, r1.y, -r0
+                mad r0.xyz, r1.y, r2, r0
+                cmp r1.xyz, r1.x, r0, c2.w
                 mov r1.w, c1.w
-                mul r2, r0.w, r1
-                mad r3.xyz, r0.w, r1.z, -c1.w
-                mad r3.w, r0.w, r1.w, -c1.w
-                cmp r0, r3, c1.w, r2
-                max r1.x, v0.x, v0.w
-                add r1.x, r1.x, -v0.x
-                mad r1.xyz, r1.x, c3.x, v0
-                mov r1.w, v0.w
-                mul r0, r0, r1
+                mul r0, r0.w, r1
+                min r1, r0, c1.w
+                max r0.xyz, v0, v0.w
+                lrp r2.xyz, c3.x, r0, v0
+                mov r2.w, v0.w
+                mul r0, r1, r2
                 mov oC0, r0
             
-            // approximately 23 instruction slots used (1 texture, 22 arithmetic)
+            // approximately 20 instruction slots used (1 texture, 19 arithmetic)
             };
     }
     pass ArmorPhase
